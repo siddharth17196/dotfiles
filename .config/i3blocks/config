@@ -1,0 +1,63 @@
+separator_block_width=14
+
+[weather]
+command=curl -Ss 'https://wttr.in?0&T&Q' | cut -c 16- | head -2 | xargs echo
+interval=3600
+color=#A4C2F4
+
+[ssid]
+label= 
+command=echo "$(iw dev wlo1 link | grep SSID | cut -d " " -f 2-)"
+color=#d33682
+interval=5
+
+[iface]
+command=sh scripts/iface
+#LABEL=wlan0:
+#IFACE=wlan0
+#ADDRESS_FAMILY=inet6?
+interval=10
+color=#91E78B
+
+[battery]
+command=python scripts/battery2
+markup=pango
+interval=30
+#color=#c923c2
+
+[memory]
+command=sh scripts/memory
+#label=MEM 
+interval=30
+
+#[memory]
+#command=$SCRIPT_DIR/memory
+#label=SWAP
+#instance=swap
+#interval=30
+
+[load]
+label= 
+command=sh scripts/load_average
+interval=10
+#color=#d48433
+
+[volume]
+command=sh scripts/volume
+LABEL= 
+#LABEL=♪ 
+#LABEL=VOL 
+interval=once
+signal=10
+#STEP=5%
+#MIXER=[determined automatically]
+#SCONTROL=[determined automatically]
+#NATURAL_MAPPING=0
+color=#3dc1d4
+
+# Update time every 5 seconds
+[time]
+label=
+command=date +%c | cut -c 1-25
+interval=5
+color=#d4df39
