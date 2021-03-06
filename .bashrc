@@ -148,3 +148,8 @@ ex ()
 source /home/siddharth/.config/broot/launcher/bash/br
                                 
 alias config='/usr/bin/git --git-dir=/home/siddharth/dotfiles/ --work-tree=/home/siddharth'
+
+export PATH=/opt/cuda/bin/:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/lib64
+export PATH=/opt/cuda/extras/CUPTI/lib64:$PATH
+export LD_LIBRARY_PATH=/opt/cuda/extras/CUPTI/lib64
