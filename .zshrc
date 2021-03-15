@@ -229,9 +229,14 @@ alias wtr='curl wttr.in/Delhi'
 task list
 alias config='/usr/bin/git --git-dir=/home/siddharth/dotfiles/ --work-tree=/home/siddharth'
 
+# for broot
+export EDITOR=/usr/bin/nvim
+
 export PATH=/opt/cuda/bin/:$PATH
 export PATH=/opt/cuda/extras/CUPTI/lib64:$PATH
 export LD_LIBRARY_PATH=/opt/cuda/extras/CUPTI/lib64
 # export PATH=/home/siddharth/Downloads/CUPTI/lib64:$PATH
 # export LD_LIBRARY_PATH=/home/siddharth/Downloads/CUPTI/lib64
 export LD_LIBRARY_PATH=/opt/cuda/lib64
+source $HOME/.zshenv
+source $HOME/.zshenv
