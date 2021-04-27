@@ -27,7 +27,7 @@ set incsearch
 set scrolloff=8
 set signcolumn=yes
 " set clipboard=unnamedplus
-" set termguicolors
+set termguicolors
 " For better display of messages
 set cmdheight=2
 
@@ -65,6 +65,8 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 
 " theme and powerline
 Plug 'morhetz/gruvbox'
+Plug 'arcticicestudio/nord-vim'
+Plug 'joshdick/onedark.vim'
 Plug 'vim-airline/vim-airline'
 
 " commenting
@@ -85,7 +87,6 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " C/C++ code formater
 Plug 'rhysd/vim-clang-format'
-Plug 'jiangmiao/auto-pairs'
 
 " tagbar
 Plug 'preservim/tagbar'
@@ -96,6 +97,16 @@ Plug 'preservim/nerdtree'
 " coc intellisense
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'wakatime/vim-wakatime'
+
+"autpairs
+Plug 'jiangmiao/auto-pairs'
+
+Plug 'mhinz/vim-startify'
+
+Plug 'psf/black', { 'branch': 'stable' }
+
+" manage virtual envs
+"Plug 'sansyrox/vim-python-virtualenv'
 
 call plug#end()
 
@@ -149,6 +160,10 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 " # Key Mappings
 " ===========================================================================
 
+" Buffer toggler
+nnoremap ]b :bn<CR>
+nnoremap [b :bp<CR>
+
 " NerdTree toggler
 map <leader>t :NERDTreeToggle<CR>
 " Close nvim if only nerdtree is open
@@ -164,7 +179,8 @@ vnoremap <leader>c :w !xclip -i -sel c<CR>
 nnoremap <silent> <leader>= :vertical resize +5<CR>
 nnoremap <silent> <leader>- :vertical resize -5<CR>
 
-
+"ctrl+p for fzf
+nnoremap <C-p> :Files<CR>
 
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
@@ -202,6 +218,9 @@ nmap <silent> gr <Plug>(coc-references)
 " ===========================================================================
 " # Functions
 " ===========================================================================
+
+" run black on save
+autocmd BufWritePre *.py execute ':Black'
 
 " function to trim white spaces
 fun! TrimWhitespace()
