@@ -16,7 +16,7 @@ State assumptions explicitly. If multiple interpretations exist, present them ra
 
 The fork that decides whether to ask first: is there more than one reasonable interpretation, or one right answer waiting to be found?
 
-- **Ambiguous or generative work** (a new feature, a design decision, an underspecified request) — ask, or see `scope-router` for when to hand off to the `scope` skill.
+- **Ambiguous or generative work** (a new feature, a design decision, an underspecified request) — ask, or see `routers.md` for when to hand off to the `scope` skill.
 - **Well-defined diagnostic work** (a bug with a clear reproduction, a stack trace, a failing test) — just fix it via `tdd-and-debugging`. One right answer doesn't need hand-holding.
 
 ## Execution
