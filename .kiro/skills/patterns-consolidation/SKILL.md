@@ -17,3 +17,4 @@ Migrating a pre-existing, ungoverned patterns file into this structure for the f
 4. **Apply the specificity test**: cut or sharpen anything too vague to act on.
 5. **De-duplicate across headings** — the same fact shouldn't appear under Design Patterns and Opinions Expressed and Architectural Preferences simultaneously. Keep it under the most specific heading and remove the rest.
 6. **Check for staleness and contradiction** — if two entries conflict (an old preference superseded by a newer one), keep the current one and remove the outdated one rather than leaving both.
+7. **Update the `<!-- last-consolidated: -->` marker at the top of `lessons.md` to today's date.** The `lessons-consolidation-check` hook uses this to decide when to run consolidation again — leaving it stale causes the hook to keep re-triggering every session.

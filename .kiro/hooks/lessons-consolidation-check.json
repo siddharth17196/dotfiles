@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "lessons-consolidation-check",
+      "description": "At the start of each session, check whether the lessons log has grown enough to warrant promoting entries into user-patterns.md / working-style.md, and run patterns-consolidation automatically if so.",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "agent",
+        "prompt": "Read .kiro/lessons.md. Count the entries below the 'last-consolidated' marker at the top of the file, and check that marker's date. If there are more than 8 unpromoted entries, or the marker is more than 30 days old (or says 'never'), invoke the patterns-consolidation skill now — it will promote reinforced entries into user-patterns.md/working-style.md and update the marker to today's date. If neither threshold is met, do nothing and don't mention this check to the user."
+      },
+      "enabled": true
+    }
+  ]
+}
