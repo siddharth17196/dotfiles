@@ -7,6 +7,8 @@ description: Periodically review the raw lessons log and the existing user-patte
 
 The batch step that keeps `user-patterns.md` and `working-style.md` curated instead of letting them grow by pure append. This does not need to run every session — promotion criteria (recurrence, reinforcement) usually can't be judged from a single session anyway.
 
+Migrating a pre-existing, ungoverned patterns file into this structure for the first time? See `references/migrating-existing-file.md` for heading-by-heading guidance before running the regular process below.
+
 ## Process
 
 1. **Review `.kiro/lessons.md`.** For each entry, check whether it's recurred (the same or a closely related lesson appears more than once) or has otherwise been confirmed as a standing rule. Promote only those into `user-patterns.md` (or `working-style.md` if it's a universal interaction preference) — leave one-off instances in the log rather than promoting on a single occurrence.
