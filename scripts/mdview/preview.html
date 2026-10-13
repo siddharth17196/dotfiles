@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown preview</title>
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/style.css">
+<body class="preview">
+<p id="status" role="status">Loading…</p>
+<article id="content" class="markdown"></article>
+<script>
+const content = document.getElementById('content');
+const status = document.getElementById('status');
+let revision = null;
+document.title = decodeURIComponent(location.pathname.split('/').at(-1));
+async function refresh() {
+  try {
+    const response = await fetch(location.pathname + '?render=1&revision=' + (revision || ''));
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to read file');
+    if (revision !== data.revision) {
+      const first = revision === null, position = window.scrollY;
+      content.innerHTML = data.html; revision = data.revision;
+      for (const link of content.querySelectorAll('a[href]')) {
+        const target = new URL(link.getAttribute('href'), location.href);
+        if (target.origin !== location.origin || !/\.(md|markdown)$/i.test(target.pathname)) {
+          if (target.href.split('#')[0] !== location.href.split('#')[0]) {
+            link.target = '_blank'; link.rel = 'noopener noreferrer';
+          }
+        }
+      }
+      if (first && location.hash) {
+        document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+      } else {
+        requestAnimationFrame(() => window.scrollTo(0, position));
+      }
+    }
+    status.hidden = true;
+  } catch (error) {
+    status.textContent = 'Preview unavailable: ' + error.message; status.hidden = false;
+  }
+  setTimeout(refresh, 1000);
+}
+content.addEventListener('click', event => {
+  const link = event.target.closest('a[href]');
+  if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const target = new URL(link.getAttribute('href'), location.href);
+  if (target.origin === location.origin && /\.(md|markdown)$/i.test(target.pathname) && window.parent !== window) {
+    if (target.pathname === location.pathname) return;
+    event.preventDefault();
+    window.parent.postMessage({type: 'open-markdown', url: target.pathname + target.hash}, location.origin);
+  }
+});
+refresh();
+</script>
+</body>
+</html>

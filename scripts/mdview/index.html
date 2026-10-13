@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown previews</title>
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/style.css">
+<body class="workspace">
+<header class="toolbar">
+  <strong>Markdown previews</strong>
+  <span id="connection" role="status">Connecting…</span>
+  <button id="theme" type="button">Switch theme</button>
+  <button id="split" type="button" aria-pressed="false">Side by side</button>
+  <label id="compare-label" hidden>Compare with <select id="compare" aria-label="Second preview"></select></label>
+</header>
+<nav id="tabs" aria-label="Open Markdown files"></nav>
+<main id="panes"><p id="empty">Add files from any terminal session with <code>python3 mdview.py FILE.md</code>.</p></main>
+<script>
+const tabs = document.getElementById('tabs');
+const panes = document.getElementById('panes');
+const connection = document.getElementById('connection');
+const splitButton = document.getElementById('split');
+const compare = document.getElementById('compare');
+const compareLabel = document.getElementById('compare-label');
+const frames = new Map();
+const themeButton = document.getElementById('theme');
+function updateTheme() {
+  const theme = document.documentElement.dataset.theme;
+  themeButton.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+  themeButton.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode');
+  for (const frame of frames.values()) frame.contentWindow.mdviewTheme?.apply(theme);
+}
+themeButton.onclick = () => window.mdviewTheme.toggle();
+window.addEventListener('mdview-theme-change', updateTheme);
+updateTheme();
+let files = [], active = null, secondary = null, split = false, signature = '';
+try {
+  const saved = JSON.parse(localStorage.getItem('mdview-layout') || '{}');
+  active = saved.active; secondary = saved.secondary; split = !!saved.split;
+} catch (_) {}
+
+async function post(route, data) {
+  const response = await fetch(route, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Request failed');
+  return result;
+}
+
+function layout() {
+  if (!files.some(f => f.url === active)) active = files[0]?.url || null;
+  if (secondary === active || !files.some(f => f.url === secondary)) secondary = files.find(f => f.url !== active)?.url || null;
+  if (files.length < 2) split = false;
+  tabs.replaceChildren(); compare.replaceChildren();
+  for (const file of files) {
+    const tab = document.createElement('div'); tab.className = 'tab';
+    const button = document.createElement('button');
+    button.textContent = file.label; button.title = file.path;
+    button.setAttribute('aria-current', String(file.url === active));
+    button.onclick = () => { active = file.url; layout(); };
+    const close = document.createElement('button'); close.textContent = '×';
+    close.className = 'close'; close.setAttribute('aria-label', 'Close ' + file.label);
+    close.onclick = async () => {
+      try { await post('/api/close', {url: file.url}); await sync(); }
+      catch (error) { connection.textContent = error.message; }
+    };
+    tab.append(button, close); tabs.append(tab);
+    if (!frames.has(file.url)) {
+      const frame = document.createElement('iframe');
+      frame.src = file.url; frame.title = file.path;
+      frame.addEventListener('load', () => frame.contentWindow.mdviewTheme?.apply(document.documentElement.dataset.theme));
+      frames.set(file.url, frame); panes.append(frame);
+    }
+    if (file.url !== active) {
+      const option = document.createElement('option'); option.value = file.url;
+      option.textContent = file.label; compare.append(option);
+    }
+  }
+  for (const [url, frame] of frames) {
+    if (!files.some(f => f.url === url)) { frame.remove(); frames.delete(url); continue; }
+    frame.hidden = url !== active && (!split || url !== secondary);
+    frame.style.order = url === active ? '0' : '1';
+  }
+  document.getElementById('empty').hidden = files.length > 0;
+  splitButton.disabled = files.length < 2;
+  splitButton.setAttribute('aria-pressed', String(split));
+  compareLabel.hidden = !split; compare.value = secondary || '';
+  try { localStorage.setItem('mdview-layout', JSON.stringify({active, secondary, split})); } catch (_) {}
+}
+
+async function sync() {
+  const response = await fetch('/api/state');
+  if (!response.ok) throw new Error('Server unavailable');
+  const state = await response.json();
+  connection.textContent = 'Live · local';
+  const next = JSON.stringify(state.files);
+  if (next !== signature) {
+    const added = state.files.filter(f => !files.some(old => old.url === f.url));
+    if (files.length && added.length) active = added.at(-1).url;
+    files = state.files; signature = next; layout();
+  }
+}
+
+splitButton.onclick = () => { split = !split; layout(); };
+compare.onchange = () => { secondary = compare.value; layout(); };
+window.addEventListener('message', async event => {
+  if (event.origin !== location.origin || ![...frames.values()].some(f => f.contentWindow === event.source)) return;
+  if (event.data?.type !== 'open-markdown') return;
+  try {
+    const result = await post('/api/open-link', {url: event.data.url});
+    await sync(); active = result.url; layout();
+    const hash = new URL(event.data.url, location.origin).hash;
+    if (hash) frames.get(active).contentWindow.location.hash = hash;
+  } catch (error) { connection.textContent = error.message; }
+});
+
+async function poll() {
+  try { await sync(); } catch (_) { connection.textContent = 'Disconnected · retrying…'; }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>
+</body>
+</html>
